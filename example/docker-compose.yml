@@ -1,0 +1,25 @@
+version: '3.1'
+services:
+  registry:
+    image: registry:2
+    environment:
+      REGISTRY_STORAGE_DELETE_ENABLED: 'true'
+    ports:
+      - "5000:5000"
+    volumes:
+      - registry-data:/var/lib/registry
+    labels:
+      - "me.hdpe.docker_registry_manifest_cleanup_companion.registry"
+
+  cleanup-companion:
+    image: hdpe/docker-registry-manifest-cleanup-companion
+    environment:
+      REGISTRY_URL: http://registry:5000
+      REGISTRY_DIR: /var/lib/registry
+      CLEANUP_SCHEDULE: "* * * * *"
+    volumes:
+      - registry-data:/var/lib/registry
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+volumes:
+  registry-data:
